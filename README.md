@@ -1,5 +1,5 @@
-
-# Gesture Classifier — OSC-Controlled 1D CNN
+# Static Gesture CNN
+## Gesture Classifier — OSC-Controlled 1D CNN
 
 This Python script implements a real-time hand gesture classifier using a 1D Convolutional Neural Network (CNN). It communicates via [OSC (Open Sound Control)](https://opensoundcontrol.stanford.edu/) and is designed for use with real-time creative environments like Max, SuperCollider, TouchDesigner, etc.
 
