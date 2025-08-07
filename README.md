@@ -1,0 +1,2 @@
+# static_gesture_cnn
+static_gesture_cnn
