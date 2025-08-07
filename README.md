@@ -3,6 +3,8 @@
 
 This Python script implements a real-time hand gesture classifier using a 1D Convolutional Neural Network (CNN). It communicates via [OSC (Open Sound Control)](https://opensoundcontrol.stanford.edu/) and is designed for use with real-time creative environments like Max, SuperCollider, TouchDesigner, etc.
 
+Can be used with the jweb versions of Mediapie: https://github.com/little-scale/mediapipe-js-osc/tree/main/jweb_versions
+
 ---
 
 ## Features
