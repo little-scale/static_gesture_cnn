@@ -173,16 +173,4 @@ Install via pip:
 pip install torch python-osc
 ```
 
----
 
-## Questions or Extensions?
-
-This tool is meant to be adapted to your real-time creative workflow. You can easily extend it with:
-
-- Custom gesture sets
-- Real-time Max patch control
-- Multimodal input (e.g., face + hands)
-- Confusion matrix output
-- Unknown gesture detection
-
-Let me know if you'd like a Max patch or demo scripts!
