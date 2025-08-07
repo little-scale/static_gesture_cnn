@@ -54,7 +54,7 @@ Use `/set_mode` to switch between modes:
 
 ---
 
-## ⚙Configuration Commands
+## Configuration Commands
 
 ### `/set_classes <int>`
 Set the number of output classes (e.g. 3 for a 3-class classifier)
