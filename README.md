@@ -1,7 +1,9 @@
-# Gesture CNN OSC Interface
+# Static Gesture CNN
 
 A Python script implementing a 1D CNN for classifying static gestures from landmark data sent via OSC.  
 The script supports training, inference, and feature extraction, with a set of OSC commands for interaction.
+
+Useful in conjunction with mediapipe scripts such as: https://github.com/little-scale/mediapipe-js-osc
 
 ---
 
