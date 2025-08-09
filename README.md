@@ -1,176 +1,109 @@
-# Static Gesture CNN
-## Gesture Classifier — OSC-Controlled 1D CNN
+# Gesture CNN OSC Interface
 
-This Python script implements a real-time hand gesture classifier using a 1D Convolutional Neural Network (CNN). It communicates via [OSC (Open Sound Control)](https://opensoundcontrol.stanford.edu/) and is designed for use with real-time creative environments like Max, SuperCollider, TouchDesigner, etc.
-
-Can be used with the jweb versions of Mediapie: https://github.com/little-scale/mediapipe-js-osc/tree/main/jweb_versions
+A Python script implementing a 1D CNN for classifying static gestures from landmark data sent via OSC.  
+The script supports training, inference, and feature extraction, with a set of OSC commands for interaction.
 
 ---
 
 ## Features
-
-- Receives hand pose data (x, y, z coordinates) via OSC
-- Supports training and inference modes
-- Dynamically configurable number of classes, epochs, and landmarks
-- Origin normalization (relative to first landmark)
-- Confidence threshold for prediction output
-- Model saving and loading
-- Feature vector output for visualization
-
----
-
-## OSC Message Format
-
-### `/input`
-
-Send one OSC message containing a **flat list of floats** with this structure:
-
-```
-/input x0 x1 ... xn y0 y1 ... yn z0 z1 ... zn class_id
-```
-
-- `x`, `y`, `z` = coordinate lists of equal length
-- `n` = number of landmarks (default: 21)
-- `class_id` = zero-indexed class integer (ignored during inference)
-
-Example: For 21 landmarks (3 × 21 + 1 = 64 floats total):
-```
-/input 0.1 0.2 ... 0.9 0.1 0.2 ... 0.9 0.1 0.2 ... 0.9 1
-```
+- **Real-time gesture classification** using a 1D CNN.
+- **Train on incoming OSC data** with configurable classes, epochs, and batch size.
+- **Output classification results** only above a set confidence threshold.
+- **Feature vector output** (`/features`) for use in other systems.
+- **Data normalization options** for origin, scale, and rotation.
+- **Tweakable model capacity** (number of layers, filters, dense size).
+- **Persistent model saving/loading** between sessions.
 
 ---
 
-## Modes
+## Parameters (Tweakable Before Runtime)
+These are set at the top of the script:
 
-Use `/set_mode` to switch between modes:
+```python
+landmark_len = 21             # default landmarks (auto-updates on first input)
+class_count = 3               # default number of classes
+training_epochs = 50          # default training epochs
+batch_size = 32               # default batch size
 
-- `train`: stores labeled samples for training
-- `inference`: runs predictions
+normalize_origin = True       # subtract first landmark as origin
+normalize_scale = True        # scale-normalize by median radius
+normalize_rotate = True       # rotate so wrist->middle-MCP lies along +X
 
-### `/set_mode`
+CONFIDENCE_THRESHOLD = 0.9    # suppress predictions below this confidence
+train_verbose = False         # print per-batch loss if True
+infer_verbose = True          # print gesture START/CHANGE/END transitions
 
-```
-/set_mode train
-/set_mode inference
+EMBED_DIM = 64                 # size of compact /features vector (UDP-safe)
+
+# Model architecture parameters
+conv_layers = 2               # number of convolutional layers
+filters = 64                  # filters per conv layer
+kernel_size = 3               # kernel size for conv layers
+dense_units = 128              # dense layer units
+dropout_rate = 0.3             # dropout rate
 ```
 
 ---
 
-## Configuration Commands
+## OSC Commands
+Send these commands to the listening port (default: `9000`).
 
-### `/set_classes <int>`
-Set the number of output classes (e.g. 3 for a 3-class classifier)
+### Mode Control
+- `/mode train` — Switch to training mode (samples will be stored with labels).
+- `/mode inference` — Switch to inference mode (incoming data classified in real time).
 
-```
-/set_classes 3
-```
+### Model Management
+- `/train` — Train the model with current samples.
+- `/train_epochs <int>` — Set the number of epochs before training (default: 50).
+- `/reset_model` — Reinitialize the CNN (weights cleared).
+- `/clear_data` — Clear all stored training samples.
 
-### `/set_epochs <int>`
-Set the number of training epochs (default: 100)
+### Data Input
+- `/input <floats> <class_id>` — Input a training or inference sample.  
+  Format: **flat list of floats of size `3*n` landmarks (all x, then all y, then all z)**, followed by class ID.
 
-```
-/set_epochs 200
-```
-
-### `/set_confidence_threshold <float>`
-Set the minimum confidence required to output a class prediction (default: 0.7)
-
-```
-/set_confidence_threshold 0.65
-```
-
-### `/normalize <0 or 1>`
-Toggle origin normalization (default: 1 = ON). When ON, all landmarks are made relative to the first.
-
-```
-/normalize 1
-```
+### Parameters at Runtime
+- `/set_confidence <float>` — Set the confidence threshold (default: 0.9).
+- `/set_classes <int>` — Set the number of output classes.
+- `/set_batch_size <int>` — Set the batch size.
+- `/set_landmarks <int>` — Set number of landmarks (default: 21).
 
 ---
 
-## Training Control
-
-### `/train`
-Train the model using all stored samples.
-
-```
-/train
-```
-
-### `/clear_training`
-Clear all stored training data (does not reset the model weights).
-
-```
-/clear_training
-```
-
-### `/reset_model`
-Reset model weights (preserves current class count and landmark count).
-
-```
-/reset_model
-```
+## Outputs
+- `/class <int>` — Predicted class index (only if confidence ≥ threshold).
+- `/confidence <float>` — Confidence of the predicted class.
+- `/features <list>` — Feature embedding vector (size `EMBED_DIM`).
 
 ---
 
-## Model Persistence
-
-### `/save_model`
-Save the trained model to `gesture_model.pt`.
-
-```
-/save_model
-```
-
-### `/load_model`
-Load model from `gesture_model.pt`.
-
-```
-/load_model
-```
+## Workflow Example
+1. Start the script:  
+   ```bash
+   python static_gesture_cnn.py
+   ```
+2. Send `/mode train` to enter training mode.
+3. Send samples to `/input` with the format described above.
+4. Send `/train` to train the model.
+5. Send `/mode inference` to classify new samples.
 
 ---
 
-## Inference Output
-
-When in `inference` mode, the script outputs:
-
-- `/confidence <float>`  
-  The highest softmax probability from the classifier
-
-- `/predicted_class <int>`  
-  Only sent if confidence ≥ `CONFIDENCE_THRESHOLD`
-
-- `/features [float list]`  
-  A flattened vector from the last CNN layer (useful for visualization)
+## Tips
+- Increase **filters** and **dense_units** for more complex datasets or higher class counts.
+- Lower **dropout_rate** for simpler datasets, raise for noisy datasets.
+- Normalize inputs (`normalize_origin`, `normalize_scale`, `normalize_rotate`) for better generalization.
+- For **3 classes**, a smaller model may suffice (e.g., 2 conv layers, 64 filters).
+- For **10+ classes**, increase filters (128–256) and dense units (256–512) for better accuracy.
 
 ---
 
-## Typical Workflow
-
-1. Start in `train` mode:
-    ```
-    /set_mode train
-    ```
-2. Send multiple labeled samples via `/input`
-3. Train:
-    ```
-    /train
-    ```
-4. Switch to inference mode:
-    ```
-    /set_mode inference
-    ```
-5. Send new samples and receive predictions if confidence is high enough.
-
----
-
-## Dependencies
-
-Install via pip:
-
+## Requirements
 ```bash
-pip install torch python-osc
+pip install python-osc tensorflow numpy
 ```
 
+---
 
+## Author
+Developed collaboratively with ChatGPT for OSC-based gesture recognition systems.
