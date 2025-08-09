@@ -102,8 +102,3 @@ Send these commands to the listening port (default: `9000`).
 ```bash
 pip install python-osc tensorflow numpy
 ```
-
----
-
-## Author
-Developed collaboratively with ChatGPT for OSC-based gesture recognition systems.
