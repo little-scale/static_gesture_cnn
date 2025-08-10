@@ -102,5 +102,5 @@ Send these commands to the listening port (default: `9000`).
 
 ## Requirements
 ```bash
-pip install python-osc tensorflow numpy
+pip install python-osc tensorflow torch numpy
 ```
