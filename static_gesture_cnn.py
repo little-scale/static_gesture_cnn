@@ -17,16 +17,16 @@ MODEL_SAVE_PATH = "gesture_model.pt"
 # =========================
 # PARAMETERS (tweakable)
 # =========================
-landmark_len = 21            # default landmarks (auto-updates on first input)
+landmark_len = 21            # default landmarks 
 class_count   = 5            # default number of classes
-training_epochs = 100         # default epochs (you set to 50)
+training_epochs = 100         # default epochs
 batch_size      = 32         # default batch size
 
 normalize_origin = True      # subtract first landmark as origin
 normalize_scale  = True      # scale-normalize by median radius
 normalize_rotate = True      # rotate so wrist->middle-MCP lies along +X
 
-CONFIDENCE_THRESHOLD = 0.9   # suppress predictions below this (you set to 0.9)
+CONFIDENCE_THRESHOLD = 0.9   # suppress predictions below this 
 train_verbose = False        # print per-batch loss if True
 infer_verbose = True         # print gesture START/CHANGE/END transitions
 
